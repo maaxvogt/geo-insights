@@ -1,0 +1,19 @@
+name = "geo-insights-api"
+main = "src/index.js"
+compatibility_date = "2026-04-28"
+
+# Account bewusst festgenagelt: hier sind zwei Cloudflare-Accounts im Wechsel
+# eingeloggt, ein Deploy in den falschen ist nicht zurueckzunehmen.
+account_id = "6949764f6ce97b088451622468bcd84d"
+
+[observability]
+enabled = true
+
+# 20 Analysen pro Minute und IP. Jede Analyse loest 4 ausgehende Requests aus.
+[[ratelimits]]
+name = "INSPECT_LIMITER"
+namespace_id = "1001"
+
+  [ratelimits.simple]
+  limit = 20
+  period = 60

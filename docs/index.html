@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GEO Insights – Wie sichtbar ist deine Seite für KI-Suche?</title>
+<meta name="description" content="Kostenloser Check: Wie gut kann ChatGPT, Claude, Perplexity oder Google AI deine Seite lesen, verstehen und zitieren? URL eingeben, Bericht bekommen.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Roboto+Mono:wght@400&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='42' fill='none' stroke='%230cce6b' stroke-width='12' stroke-dasharray='200 264' stroke-linecap='round' transform='rotate(-90 50 50)'/></svg>">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="./">
+      <svg class="brand-mark" viewBox="0 0 100 100" aria-hidden="true">
+        <circle cx="50" cy="50" r="42" fill="none" stroke="#e8f0fe" stroke-width="13"/>
+        <circle cx="50" cy="50" r="42" fill="none" stroke="#1a73e8" stroke-width="13"
+                stroke-dasharray="198 264" stroke-linecap="round" transform="rotate(-90 50 50)"/>
+      </svg>
+      <span>GEO <strong>Insights</strong></span>
+    </a>
+    <span class="topbar-spacer"></span>
+    <a class="topbar-link" href="#methodik">Was wird geprüft?</a>
+  </div>
+</header>
+
+<div class="shell">
+
+  <section class="hero" id="hero">
+    <h1>Wie sichtbar ist deine Seite für KI-Suche?</h1>
+    <p>
+      ChatGPT, Claude, Perplexity und Google AI Overviews lesen deine Seite anders als
+      ein Mensch – und anders als Google es früher tat. Gib eine URL ein und sieh,
+      was bei ihnen ankommt.
+    </p>
+  </section>
+
+  <form class="searchbar" id="form" autocomplete="off">
+    <label class="field">
+      <input id="url" type="text" inputmode="url" placeholder="https://beispiel.de/seite"
+             aria-label="Zu prüfende URL" spellcheck="false" required>
+    </label>
+    <button class="btn" type="submit" id="submit">Analysieren</button>
+  </form>
+
+  <p class="examples" id="examples">
+    Zum Ausprobieren:
+    <button type="button" data-ex="https://poddie.com">poddie.com</button> ·
+    <button type="button" data-ex="https://www.quietoffice.de">quietoffice.de</button>
+  </p>
+
+  <section class="loading" id="loading" hidden>
+    <div class="spinner"></div>
+    <p id="loading-text">Seite wird abgerufen …</p>
+  </section>
+
+  <section class="notice" id="error" hidden>
+    <h3>Die Analyse ist fehlgeschlagen</h3>
+    <p id="error-text"></p>
+  </section>
+
+  <section id="report" hidden>
+    <div class="report-head">
+      <div class="report-url">
+        <a id="report-link" href="#" target="_blank" rel="noopener noreferrer"></a>
+        <span class="stamp" id="report-stamp"></span>
+      </div>
+      <button class="btn-ghost" id="copy" type="button">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/>
+        </svg>
+        Link kopieren
+      </button>
+    </div>
+
+    <div class="summary" id="summary"></div>
+
+    <div class="legend">
+      <span><i class="m-fail"></i> Problem</span>
+      <span><i class="m-average"></i> Verbesserbar</span>
+      <span><i class="m-pass"></i> Bestanden</span>
+      <span>Werte 0–100, höher ist besser</span>
+    </div>
+
+    <div id="categories"></div>
+  </section>
+
+  <section class="method" id="methodik">
+    <h2>Was hier geprüft wird – und was nicht</h2>
+    <p>
+      Geprüft wird das <strong>rohe HTML</strong> der eingegebenen URL, also genau das,
+      was <code>GPTBot</code>, <code>ClaudeBot</code> und <code>PerplexityBot</code> beim
+      Abruf bekommen. Diese Crawler führen kein JavaScript aus – Inhalt, der erst im
+      Browser entsteht, existiert für sie nicht. Deshalb wird bewusst nicht das
+      gerenderte Ergebnis bewertet.
+    </p>
+    <p>
+      Alle 34 Prüfungen sind regelbasiert und nachvollziehbar: kein Modell bewertet hier
+      Inhalte, kein Ergebnis schwankt zwischen zwei Durchläufen. Das Tool sagt dir, ob
+      deine Seite technisch und strukturell zitierfähig ist. Es kann dir <em>nicht</em>
+      sagen, ob ChatGPT dich heute tatsächlich nennt – das hängt zusätzlich an Marke,
+      Verlinkung und Wettbewerb.
+    </p>
+    <p>
+      Zusätzlich abgerufen werden <code>/robots.txt</code>, <code>/llms.txt</code> und
+      <code>/sitemap.xml</code> derselben Domain. Es werden keine Cookies, Kopfzeilen
+      oder Zugangsdaten weitergereicht und nichts gespeichert.
+    </p>
+  </section>
+
+</div>
+
+<div class="toast" id="toast">Link kopiert</div>
+
+<script type="module" src="assets/app.js"></script>
+</body>
+</html>
