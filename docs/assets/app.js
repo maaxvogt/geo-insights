@@ -7,7 +7,7 @@ const API = new URLSearchParams(location.search).get("api") || DEFAULT_API;
 const $ = (id) => document.getElementById(id);
 const el = {
   form: $("form"), url: $("url"), submit: $("submit"),
-  hero: $("hero"), examples: $("examples"),
+  hero: $("hero"),
   loading: $("loading"), loadingText: $("loading-text"),
   error: $("error"), errorText: $("error-text"),
   report: $("report"), link: $("report-link"), stamp: $("report-stamp"),
@@ -29,7 +29,7 @@ function gauge(score, label, big = false) {
   return `
     <div class="gauge-wrap${big ? " big" : ""}">
       <div class="gauge ${cls}">
-        <svg viewBox="0 0 100 100" role="img" aria-label="${esc(label)}: ${score} von 100">
+        <svg viewBox="0 0 100 100" role="img" aria-label="${esc(label)}: ${score} out of 100">
           <circle class="track" cx="50" cy="50" r="${r}"></circle>
           <circle class="arc" cx="50" cy="50" r="${r}"
                   stroke-dasharray="${c.toFixed(1)}"
@@ -75,7 +75,7 @@ function render(result, payload) {
   const { categories, overall } = result;
 
   el.summary.innerHTML =
-    gauge(overall, "GEO-Score", true) +
+    gauge(overall, "GEO score", true) +
     categories.map((c) => gauge(c.score, c.label)).join("");
 
   el.categories.innerHTML = categories
@@ -87,13 +87,13 @@ function render(result, payload) {
       const passed = sorted.filter((c) => c.status === "pass");
 
       const openHtml = open.length
-        ? `<div class="group-title">${open.length} ${open.length === 1 ? "Punkt" : "Punkte"} zum Anpacken</div>` +
+        ? `<div class="group-title">${open.length} ${open.length === 1 ? "thing" : "things"} to fix</div>` +
           open.map(auditRow).join("")
-        : `<div class="group-title">Hier ist nichts offen.</div>`;
+        : `<div class="group-title">Nothing outstanding here.</div>`;
 
       const passedHtml = passed.length
         ? `<details class="passed-group">
-             <summary>Bestandene Prüfungen (${passed.length})</summary>
+             <summary>Passed checks (${passed.length})</summary>
              ${passed.map(auditRow).join("")}
            </details>`
         : "";
@@ -113,11 +113,16 @@ function render(result, payload) {
 
   el.link.textContent = payload.finalUrl;
   el.link.href = payload.finalUrl;
+
+  // Bewusst "17 Sep 2026" statt eines Zahlenformats: 9/17 gegen 17/9 liest
+  // je nach Herkunft verschieden, der Monatsname ist eindeutig.
   const when = new Date(payload.fetchedAt);
+  const day = when.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+  const time = when.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
   el.stamp.textContent =
-    `Abgerufen am ${when.toLocaleDateString("de-DE")} um ${when.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" })} · ` +
-    `${payload.fetchMs} ms · ${(payload.html.length / 1024).toFixed(0)} kB HTML` +
-    (payload.truncated ? " (gekürzt)" : "");
+    `Fetched ${day} at ${time} · ${payload.fetchMs} ms · ` +
+    `${(payload.html.length / 1024).toFixed(0)} kB of HTML` +
+    (payload.truncated ? " (truncated)" : "");
 
   el.report.hidden = false;
 
@@ -151,7 +156,7 @@ function normalize(input) {
 function setBusy(on, text) {
   el.loading.hidden = !on;
   el.submit.disabled = on;
-  el.submit.textContent = on ? "Läuft …" : "Analysieren";
+  el.submit.textContent = on ? "Working …" : "Analyze";
   if (text) el.loadingText.textContent = text;
 }
 
@@ -168,8 +173,7 @@ async function run(rawUrl, { pushState = true } = {}) {
   el.error.hidden = true;
   el.report.hidden = true;
   el.hero.hidden = true;
-  el.examples.hidden = true;
-  setBusy(true, "Seite wird abgerufen …");
+  setBusy(true, "Fetching the page …");
 
   if (pushState) {
     const u = new URL(location.href);
@@ -183,17 +187,16 @@ async function run(rawUrl, { pushState = true } = {}) {
     const data = await res.json().catch(() => ({}));
 
     if (!res.ok) {
-      showError(data.error || `Der Abruf ist mit HTTP ${res.status} fehlgeschlagen.`);
+      showError(data.error || `The fetch failed with HTTP ${res.status}.`);
       return;
     }
 
-    setBusy(true, "HTML wird ausgewertet …");
+    setBusy(true, "Evaluating the HTML …");
     const result = analyze(data);
     render(result, data);
   } catch (err) {
     showError(
-      `Der Analyse-Dienst ist nicht erreichbar (${err.message}). ` +
-      `Läuft der Worker unter ${API}?`,
+      `The analysis service is unreachable (${err.message}). Is the worker running at ${API}?`,
     );
   } finally {
     setBusy(false);
@@ -203,11 +206,6 @@ async function run(rawUrl, { pushState = true } = {}) {
 el.form.addEventListener("submit", (e) => {
   e.preventDefault();
   run(el.url.value);
-});
-
-el.examples.addEventListener("click", (e) => {
-  const b = e.target.closest("button[data-ex]");
-  if (b) run(b.dataset.ex);
 });
 
 el.copy.addEventListener("click", async () => {

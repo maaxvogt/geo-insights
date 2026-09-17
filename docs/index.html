@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="de">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>GEO Insights – Wie sichtbar ist deine Seite für KI-Suche?</title>
-<meta name="description" content="Kostenloser Check: Wie gut kann ChatGPT, Claude, Perplexity oder Google AI deine Seite lesen, verstehen und zitieren? URL eingeben, Bericht bekommen.">
+<title>GEO Insights – How visible is your site to AI search?</title>
+<meta name="description" content="Free check: how well can ChatGPT, Claude, Perplexity or Google AI read, understand and quote your page? Enter a URL, get a full report.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Roboto+Mono:wght@400&display=swap">
@@ -24,42 +24,36 @@
       <span>GEO <strong>Insights</strong></span>
     </a>
     <span class="topbar-spacer"></span>
-    <a class="topbar-link" href="#methodik">Was wird geprüft?</a>
+    <a class="topbar-link" href="#method">What gets checked?</a>
   </div>
 </header>
 
 <div class="shell">
 
   <section class="hero" id="hero">
-    <h1>Wie sichtbar ist deine Seite für KI-Suche?</h1>
+    <h1>How visible is your site to AI search?</h1>
     <p>
-      ChatGPT, Claude, Perplexity und Google AI Overviews lesen deine Seite anders als
-      ein Mensch – und anders als Google es früher tat. Gib eine URL ein und sieh,
-      was bei ihnen ankommt.
+      ChatGPT, Claude, Perplexity and Google AI Overviews read your page differently
+      from a human — and differently from the way Google used to. Enter a URL and see
+      what actually reaches them.
     </p>
   </section>
 
   <form class="searchbar" id="form" autocomplete="off">
     <label class="field">
-      <input id="url" type="text" inputmode="url" placeholder="https://beispiel.de/seite"
-             aria-label="Zu prüfende URL" spellcheck="false" required>
+      <input id="url" type="text" inputmode="url" placeholder="https://example.com/page"
+             aria-label="URL to analyze" spellcheck="false" required>
     </label>
-    <button class="btn" type="submit" id="submit">Analysieren</button>
+    <button class="btn" type="submit" id="submit">Analyze</button>
   </form>
-
-  <p class="examples" id="examples">
-    Zum Ausprobieren:
-    <button type="button" data-ex="https://poddie.com">poddie.com</button> ·
-    <button type="button" data-ex="https://www.quietoffice.de">quietoffice.de</button>
-  </p>
 
   <section class="loading" id="loading" hidden>
     <div class="spinner"></div>
-    <p id="loading-text">Seite wird abgerufen …</p>
+    <p id="loading-text">Fetching the page …</p>
   </section>
 
   <section class="notice" id="error" hidden>
-    <h3>Die Analyse ist fehlgeschlagen</h3>
+    <h3>The analysis failed</h3>
     <p id="error-text"></p>
   </section>
 
@@ -73,7 +67,7 @@
         <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
           <path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/>
         </svg>
-        Link kopieren
+        Copy link
       </button>
     </div>
 
@@ -81,40 +75,39 @@
 
     <div class="legend">
       <span><i class="m-fail"></i> Problem</span>
-      <span><i class="m-average"></i> Verbesserbar</span>
-      <span><i class="m-pass"></i> Bestanden</span>
-      <span>Werte 0–100, höher ist besser</span>
+      <span><i class="m-average"></i> Needs work</span>
+      <span><i class="m-pass"></i> Passed</span>
+      <span>Values 0–100, higher is better</span>
     </div>
 
     <div id="categories"></div>
   </section>
 
-  <section class="method" id="methodik">
-    <h2>Was hier geprüft wird – und was nicht</h2>
+  <section class="method" id="method">
+    <h2>What gets checked here — and what does not</h2>
     <p>
-      Geprüft wird das <strong>rohe HTML</strong> der eingegebenen URL, also genau das,
-      was <code>GPTBot</code>, <code>ClaudeBot</code> und <code>PerplexityBot</code> beim
-      Abruf bekommen. Diese Crawler führen kein JavaScript aus – Inhalt, der erst im
-      Browser entsteht, existiert für sie nicht. Deshalb wird bewusst nicht das
-      gerenderte Ergebnis bewertet.
+      What gets analyzed is the <strong>raw HTML</strong> of the URL you enter, which is
+      exactly what <code>GPTBot</code>, <code>ClaudeBot</code> and
+      <code>PerplexityBot</code> receive when they fetch it. These crawlers do not run
+      JavaScript, so content that only appears in the browser does not exist for them.
+      That is why the rendered result is deliberately not what gets scored.
     </p>
     <p>
-      Alle 34 Prüfungen sind regelbasiert und nachvollziehbar: kein Modell bewertet hier
-      Inhalte, kein Ergebnis schwankt zwischen zwei Durchläufen. Das Tool sagt dir, ob
-      deine Seite technisch und strukturell zitierfähig ist. Es kann dir <em>nicht</em>
-      sagen, ob ChatGPT dich heute tatsächlich nennt – das hängt zusätzlich an Marke,
-      Verlinkung und Wettbewerb.
+      All 34 checks are rule-based and traceable: no model judges your content here, and
+      no result drifts between two runs. The tool tells you whether your page is
+      technically and structurally quotable. It can <em>not</em> tell you whether ChatGPT
+      actually names you today — that also depends on brand, links and competition.
     </p>
     <p>
-      Zusätzlich abgerufen werden <code>/robots.txt</code>, <code>/llms.txt</code> und
-      <code>/sitemap.xml</code> derselben Domain. Es werden keine Cookies, Kopfzeilen
-      oder Zugangsdaten weitergereicht und nichts gespeichert.
+      Alongside the page itself, <code>/robots.txt</code>, <code>/llms.txt</code> and
+      <code>/sitemap.xml</code> of the same domain are fetched. No cookies, headers or
+      credentials are ever passed on, and nothing is stored.
     </p>
   </section>
 
 </div>
 
-<div class="toast" id="toast">Link kopiert</div>
+<div class="toast" id="toast">Link copied</div>
 
 <script type="module" src="assets/app.js"></script>
 </body>

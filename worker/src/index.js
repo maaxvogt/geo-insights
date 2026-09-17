@@ -51,13 +51,13 @@ function validateTarget(raw) {
   try {
     u = new URL(raw);
   } catch {
-    return { error: "Das ist keine gültige URL." };
+    return { error: "That is not a valid URL." };
   }
   if (u.protocol !== "http:" && u.protocol !== "https:") {
-    return { error: "Nur http:// und https:// werden unterstützt." };
+    return { error: "Only http:// and https:// are supported." };
   }
   if (u.port && !["80", "443", ""].includes(u.port)) {
-    return { error: "Nur die Standardports 80 und 443 sind erlaubt." };
+    return { error: "Only the standard ports 80 and 443 are allowed." };
   }
 
   const host = u.hostname.toLowerCase().replace(/^\[|\]$/g, "");
@@ -71,7 +71,7 @@ function validateTarget(raw) {
     host === "::1" ||
     host === "0.0.0.0"
   ) {
-    return { error: "Interne Adressen können nicht geprüft werden." };
+    return { error: "Internal addresses cannot be checked." };
   }
 
   // IPv4-Literale: private und reservierte Bereiche sperren.
@@ -87,19 +87,19 @@ function validateTarget(raw) {
       (a === 192 && b === 168) ||
       (a === 100 && b >= 64 && b <= 127) ||
       a >= 224;
-    if (blocked) return { error: "Interne Adressen können nicht geprüft werden." };
+    if (blocked) return { error: "Internal addresses cannot be checked." };
   }
 
   // IPv6-Literale: nur Global Unicast (2000::/3) zulassen.
   if (host.includes(":")) {
     const first = parseInt(host.split(":")[0] || "0", 16);
     if (!(first >= 0x2000 && first <= 0x3fff)) {
-      return { error: "Interne Adressen können nicht geprüft werden." };
+      return { error: "Internal addresses cannot be checked." };
     }
   }
 
   if (!host.includes(".")) {
-    return { error: "Der Domainname sieht unvollständig aus." };
+    return { error: "That domain name looks incomplete." };
   }
 
   u.hash = "";
@@ -119,7 +119,7 @@ async function safeFetch(url, { redirect = "follow" } = {}) {
         // Bewusst KEINE Client-Header weiterreichen: kein Cookie, kein Auth.
         "User-Agent": UA,
         Accept: "text/html,application/xhtml+xml,text/plain;q=0.9,*/*;q=0.8",
-        "Accept-Language": "de-DE,de;q=0.9,en;q=0.8",
+        "Accept-Language": "en-US,en;q=0.9,*;q=0.5",
       },
     });
 
@@ -185,15 +185,15 @@ async function safeFetch(url, { redirect = "follow" } = {}) {
 export default {
   async fetch(request, env) {
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
-    if (request.method !== "GET") return json({ error: "Nur GET." }, 405);
+    if (request.method !== "GET") return json({ error: "GET only." }, 405);
 
     const url = new URL(request.url);
 
     if (url.pathname === "/health") return json({ ok: true, service: "geo-insights-api" });
-    if (url.pathname !== "/api/inspect") return json({ error: "Unbekannter Endpunkt." }, 404);
+    if (url.pathname !== "/api/inspect") return json({ error: "Unknown endpoint." }, 404);
 
     const target = url.searchParams.get("url");
-    if (!target) return json({ error: "Parameter 'url' fehlt." }, 400);
+    if (!target) return json({ error: "Missing the 'url' parameter." }, 400);
 
     const check = validateTarget(target.trim());
     if (check.error) return json({ error: check.error }, 400);
@@ -204,7 +204,7 @@ export default {
       const { success } = await env.INSPECT_LIMITER.limit({ key: ip });
       if (!success) {
         return json(
-          { error: "Zu viele Anfragen. Bitte eine Minute warten." },
+          { error: "Too many requests. Please wait a minute." },
           429,
           { "Retry-After": "60" },
         );
@@ -213,14 +213,29 @@ export default {
 
     const page = await safeFetch(check.url.toString());
 
+    // Nicht aufloesbare Domains wirft die Runtime nicht immer als Fehler: oft
+    // kommt eine Platzhalterantwort der Cloudflare-Kante zurueck (HTTP 530,
+    // Koerper "error code: 1016"). Die darf nicht als Seite durchgehen, sonst
+    // bekommt ein Tippfehler einen Bericht statt einer Fehlermeldung. Ein echtes
+    // 5xx der Zielseite bleibt dagegen ein Befund und wird weitergereicht.
+    const edgeStub = /^error code: \d+$/i.test((page.body || "").trim());
+    if (page.ok && (page.status === 530 || edgeStub)) {
+      return json({
+        error:
+          "The page could not be reached. Check the spelling of the domain, or the server is currently unreachable.",
+        detail: `edge stub: HTTP ${page.status} ${(page.body || "").trim().slice(0, 40)}`,
+        requestedUrl: check.url.toString(),
+      }, 502);
+    }
+
     if (!page.ok) {
       // Die Rohmeldung der Runtime ("internal error; reference = ...") hilft
       // niemandem weiter. Sie bleibt in `detail` für die Fehlersuche stehen.
       return json({
         error:
           page.error === "timeout"
-            ? "Die Seite hat nicht innerhalb von 12 Sekunden geantwortet."
-            : "Die Seite konnte nicht geladen werden. Prüfe die Schreibweise der Domain – oder der Server ist gerade nicht erreichbar.",
+            ? "The page did not respond within 12 seconds."
+            : "The page could not be loaded. Check the spelling of the domain, or the server is currently unreachable.",
         detail: page.error,
         requestedUrl: check.url.toString(),
       }, 502);
@@ -228,7 +243,7 @@ export default {
 
     if (!page.isText) {
       return json({
-        error: `Diese URL liefert kein HTML (${page.contentType || "unbekannter Typ"}).`,
+        error: `That URL does not return HTML (${page.contentType || "unknown type"}).`,
         requestedUrl: check.url.toString(),
       }, 415);
     }
